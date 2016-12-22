@@ -796,7 +796,7 @@ function Get-HelpPreview
                     }
                 }
 
-                $xml.Save($MamlCopyPath)
+                SaveXml $xml -Path $MamlCopyPath
                 
                 foreach ($command in $xml.helpItems.command.details.name)
                 {
@@ -1450,8 +1450,27 @@ function MakeHelpInfoXml
         
     }
     
-    $HelpInfoContent.Save((Get-ChildItem $OutputFullPath).FullName)
+    SaveXml $HelpInfoContent -Path (Get-ChildItem $OutputFullPath).FullName
 
+}
+
+function SaveXml
+{
+    param(
+        [xml]$Xml,
+        [string]$Path
+    )
+
+    $path = (Resolve-Path $path).Path
+    try
+    {
+        $stream = [System.IO.File]::Open($path, [System.IO.FileMode]::Create)
+        $xml.Save($stream)
+    }
+    finally
+    {
+        $stream.Close()
+    }
 }
 
 
