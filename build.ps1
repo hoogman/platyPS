@@ -16,24 +16,24 @@ msbuild Markdown.MAML.sln /p:Configuration=$Configuration
 $assemblyPath = (Resolve-Path "src\Markdown.MAML\bin\$Configuration\Markdown.MAML.dll").Path
 
 # copy artifacts
-mkdir out -ErrorAction SilentlyContinue > $null
-cp -Rec -Force src\platyPS out
+New-Item -Type Directory out -ErrorAction SilentlyContinue > $null
+Copy-Item -Rec -Force src\platyPS out
 if (-not (Test-Path out\platyPS\Markdown.MAML.dll) -or 
-    (ls out\platyPS\Markdown.MAML.dll).LastWriteTime -lt (ls $assemblyPath).LastWriteTime)
+    (Get-ChildItem out\platyPS\Markdown.MAML.dll).LastWriteTime -lt (Get-ChildItem $assemblyPath).LastWriteTime)
 {
-    cp $assemblyPath out\platyPS
+    Copy-Item $assemblyPath out\platyPS
 } else {
     Write-Host -Foreground Yellow 'Skip Markdown.MAML.dll copying'
 }
 
 # copy schema file and docs
-cp .\platyPS.schema.md out\platyPS
-mkdir out\platyPS\docs -ErrorAction SilentlyContinue > $null
-cp .\docs\* out\platyPS\docs\
+Copy-Item .\platyPS.schema.md out\platyPS
+New-Item -Type Directory out\platyPS\docs -ErrorAction SilentlyContinue > $null
+Copy-Item .\docs\* out\platyPS\docs\
 
 # copy template files
-mkdir out\platyPS\templates -ErrorAction SilentlyContinue > $null
-cp .\templates\* out\platyps\templates\
+New-Item -Type Directory out\platyPS\templates -ErrorAction SilentlyContinue > $null
+Copy-Item .\templates\* out\platyps\templates\
 
 # put the right module version
 if ($env:APPVEYOR_REPO_TAG_NAME)
@@ -46,7 +46,7 @@ if ($env:APPVEYOR_REPO_TAG_NAME)
 # dogfooding: generate help for the module
 Remove-Module platyPS -ErrorAction SilentlyContinue
 Import-Module $pwd\out\platyPS
-New-ExternalHelp docs -OutputPath out\platyPS\en-US -Force
+#New-ExternalHelp docs -OutputPath out\platyPS\en-US -Force
 
 # reload module, to apply generated help
 Import-Module $pwd\out\platyPS -Force

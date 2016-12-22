@@ -107,7 +107,7 @@ function New-MarkdownHelp
     begin
     {
         validateWorkingProvider
-        mkdir $OutputFolder -ErrorAction SilentlyContinue > $null
+        New-Item -Type Directory $OutputFolder -ErrorAction SilentlyContinue > $null
     }
 
     process
@@ -348,7 +348,7 @@ function Update-MarkdownHelpSchema
         $MarkdownFiles = @()
         if ($OutputFolder)
         {
-            mkdir $OutputFolder -ErrorAction SilentlyContinue > $null
+            New-Item -Type Directory $OutputFolder -ErrorAction SilentlyContinue > $null
         }
     }
     
@@ -631,7 +631,7 @@ function New-ExternalHelp
         }
         else 
         {
-            mkdir $OutputPath -ErrorAction SilentlyContinue > $null
+            New-Item -Type Directory $OutputPath -ErrorAction SilentlyContinue > $null
             Write-Verbose "[New-ExternalHelp] Use $OutputPath as path to a directory"
         }
     }
@@ -885,7 +885,7 @@ function New-ExternalHelpCab
     begin
     {
         validateWorkingProvider 
-        mkdir $OutputFolder -ErrorAction SilentlyContinue > $null  
+        New-Item -Type Directory $OutputFolder -ErrorAction SilentlyContinue > $null  
     }
     process
     {
@@ -1051,7 +1051,7 @@ function GetInfoCallback
             if ($containerFolder)
             {
                 # this if is for $LogPath -eq foo.log  case
-                mkdir $containerFolder -ErrorAction SilentlyContinue > $null
+                New-Item -Type Directory $containerFolder -ErrorAction SilentlyContinue > $null
             }
 
             if (-not $Append)
@@ -1093,8 +1093,8 @@ function GetAboutTopicsFromPath
 
         $MdContent = Get-Content -raw $AboutFilePath
         $MdParser = new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' `
-                                -ArgumentList { param([int]$current, [int]$all) 
-                                Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)}
+                                #-ArgumentList $null { param([int]$current, [int]$all) 
+                                #Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)}
         $MdObject = $MdParser.ParseString($MdContent)
 
         if($MdObject.Children[1].text.length -gt 5)
@@ -1220,7 +1220,7 @@ function GetMamlModelImpl
 
         $parseMode = GetParserMode -PreserveFormatting:$ForAnotherMarkdown
         $model = $p.ParseString($mdText, $parseMode, $_)
-        Write-Progress -Activity "Parsing markdown" -Completed    
+        #Write-Progress -Activity "Parsing markdown" -Completed    
         $maml = $t.NodeModelToMamlModel($model)
 
         # flatten
@@ -1240,10 +1240,10 @@ function GetMamlModelImpl
 
 function NewMarkdownParser
 {
-    return new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' -ArgumentList {
-        param([int]$current, [int]$all) 
-        Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)
-    }
+    return new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' #-ArgumentList {
+    #    param([int]$current, [int]$all) 
+    #    Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)
+    #}
 }
 
 function NewModelTransformer
@@ -1545,7 +1545,7 @@ function MySetContent
         $dir = Split-Path $Path
         if ($dir) 
         {
-            mkdir $dir -ErrorAction SilentlyContinue > $null
+            New-Item -Type Directory $dir -ErrorAction SilentlyContinue > $null
         }
     }
 
