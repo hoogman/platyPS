@@ -4,7 +4,7 @@ using System;
 
 namespace Markdown.MAML.Model.MAML
 {
-    public class MamlParameter : ICloneable
+    public class MamlParameter
     {
         public SourceExtent Extent { get; set; }
 
@@ -82,11 +82,6 @@ namespace Markdown.MAML.Model.MAML
         {
             return string.IsNullOrWhiteSpace(this.Position) ||
                 StringComparer.OrdinalIgnoreCase.Equals(this.Position, "Named");
-        }
-
-        object ICloneable.Clone()
-        {
-            return this.Clone();
         }
     }
 }
