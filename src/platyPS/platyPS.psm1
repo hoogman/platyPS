@@ -280,6 +280,11 @@ function New-MarkdownHelp
                         Write-Warning -Message "This module has more than 1 guid. This could impact external help creation."
                     }
                     # yeild
+                    $cmdletHash = @{}
+                    foreach ($cmd in $CmdletNames){
+                        $cmdSyn = GetMamlObject -Cmdlet $cmd
+                        $cmdletHash.add($cmd,$cmdSyn.Synopsis)
+                    }
                     NewModuleLandingPage  -Path $OutputFolder `
                                         -ModuleName $ModuleName `
                                         -ModuleGuid $ModuleGuid `
@@ -287,6 +292,7 @@ function New-MarkdownHelp
                                         -Locale $Locale `
                                         -Version $HelpVersion `
                                         -FwLink $FwLink `
+                                        -CmdletHash $cmdletHash `
                                         -Encoding $Encoding `
                                         -Force:$Force
                 }
@@ -1766,6 +1772,9 @@ function NewModuleLandingPage
         [Parameter(mandatory=$true,ParameterSetName="UpdateLandingPage")]
         [System.Collections.Generic.List[Markdown.MAML.Model.MAML.MamlCommand]]
         $Module,
+        [Parameter(Mandatory=$false,ParameterSetName="NewLandingPage")]
+        [hashtable]
+        $CmdletHash,
         [Parameter(mandatory=$true)]
         [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
         [switch]$Force
@@ -1841,8 +1850,15 @@ function NewModuleLandingPage
         }
         else 
         {
-            $CmdletNames | ForEach-Object {
-                $Content += "### [" + $_ + "](" + $_ + ".md)`r`n{{Manually Enter $_ Description Here}}`r`n`r`n"    
+            if($CmdletHash){
+                foreach ($cmdletName in $CmdletHash.keys){
+                    $Content += "### [" + $cmdletName + "](" + $cmdletName + ".md)`r`n" + $cmdletHash[$cmdletName] + "`r`n`r`n"  
+                }
+            }
+            else {
+                $CmdletNames | ForEach-Object {
+                    $Content += "### [" + $_ + "](" + $_ + ".md)`r`n{{Manually Enter $_ Description Here}}`r`n`r`n"    
+                }
             }    
         }
         
@@ -2250,7 +2266,7 @@ function ConvertPsObjectsToMamlModel
                 $ParameterObject.PipelineInput = getPipelineValue $Parameter
                 $ParameterType = $Parameter.ParameterType
                 $ParameterObject.Type = getTypeString -typeObject $ParameterType
-                $ParameterObject.FullType = $ParameterType.FullName
+                
 
                 $ParameterObject.ValueRequired = -not ($Parameter.Type -eq "SwitchParameter") # thisDefinition is a heuristic
 
